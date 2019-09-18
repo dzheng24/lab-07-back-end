@@ -18,15 +18,12 @@ app.get('/location', (request, response) =>{
 })
 
 app.get('/weather', (request, response) => {
-  const darkskyData = require('./data/darksky.json');
-  const tempArr = [];
-  
-  darkskyData.daily.data.forEach(obj => {
-    let tempVar = new Weather(obj);
-    tempArr.push(tempVar);
+  const darkskyData = require('./data/darksky.json');  
+  const weatherForecast = darkskyData.daily.data.map(obj => {
+    return new Weather(obj);
   })
 
-  response.status(200).send(tempArr);
+  response.status(200).send(weatherForecast);
 })
 
 function Location(searchQuery, geoData){
