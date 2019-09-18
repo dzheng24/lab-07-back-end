@@ -1,46 +1,57 @@
 'use strict';
 
+// server setup
 const express = require('express');
 const app = express();
 const cors = require('cors');
 const PORT = process.env.PORT || 3000;
 require('dotenv').config();
 const superagent = require('superagent');
-
 app.use(cors());
+
+//global variables
+let latitude;
+let longitude;
 
 app.get('/location', (request, response) =>{
   let searchQuery = request.query.data;
-  const URL = `https://maps.googleapis.com/maps/api/geocode/json?address=${searchQuery}&key=${process.env.GEOCODE_API_KEY}`
+  const URL = `https://maps.googleapis.com/maps/api/geocode/json?address=${searchQuery}&key=${process.env.GEOCODE_API_KEY}`;
 
   superagent.get(URL)
     .then(superagentResults => {
-        let locationData = superagentResults.body.results[0]
-        console.log(superagentResults.body.results[0].geometry);
-        const location = new Location(searchQuery, locationData);
-
-        console.log(location);
-        response.status(200).send(location);
+      let locationData = superagentResults.body.results[0];
+      console.log(superagentResults.body.results[0].geometry);
+      const location = new Location(searchQuery, locationData);
+      latitude = location.latitude;
+      longitude = location.longitude;
+      console.log(location);
+      response.status(200).send(location);
     })
     .catch(superagentResults => {
       console.log('nothing');
-  })
+    })
 
 })
 
 app.get('/weather', (request, response) => {
-  try{
-    const darkskyData = require('./data/darksky.json');
 
-    const weatherForecast = darkskyData.daily.data.map(obj => {
-      return new Weather(obj);
+  const darkskyData = require('./data/darksky.json');
+  const URL = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${latitude},${longitude}`
+
+  superagent.get(URL)
+    .then(superagentResults => {
+      let weatherData = superagentResults.body.daily.data;
+      const weatherForecast = weatherData.map(obj => {
+        return new Weather(obj);
+
+      })
+      console.log(weatherForecast);
+      response.status(200).send(weatherForecast);
+    })
+    .catch(superagentResults => {
+      console.log('nothing');
     })
 
-    response.status(200).send(weatherForecast);
-  }
-  catch(error){
-    handleError(error, response);
-  }
 })
 
 function Location(searchQuery, locationData){
