@@ -11,7 +11,7 @@ app.use(cors());
 
 app.get('/location', (request, response) =>{
   let searchQuery = request.query.data;
-  const URL = `https://maps.googleapis.com/maps/api/geocode/json?address=${searchQuery}&key=AIzaSyCkqF42wQoOPdYaWPhjEqqO2JqSvbDGiZE`
+  const URL = `https://maps.googleapis.com/maps/api/geocode/json?address=${searchQuery}&key=${process.env.GEOCODE_API_KEY}`
 
   superagent.get(URL)
     .then(superagentResults => {
@@ -19,6 +19,7 @@ app.get('/location', (request, response) =>{
         console.log(superagentResults.body.results[0].geometry);
         const location = new Location(searchQuery, locationData);
 
+        console.log(location);
         response.status(200).send(location);
     })
     .catch(superagentResults => {
