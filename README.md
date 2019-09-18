@@ -27,6 +27,8 @@ At 11:40, we finished location feature.
 
 At 12:13, we finished weather feature. 
 
+At 1:30, we finished eventbrite feature.
+
 ## Credits and Collaborations
 <!-- Give credit (and a link) to other people or resources that helped you build this application. -->
 9/18/19 9:30am - Project initiated
@@ -38,6 +40,6 @@ Estimate of time needed to complete: 3 hours
 
 Start time: 9:30am
 
-Finish time: 1:45pm
+Finish time: 1:30pm
 
-Actual time needed to complete: 3.75 hours
+Actual time needed to complete: 3 hours
