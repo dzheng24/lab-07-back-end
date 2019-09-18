@@ -24,20 +24,17 @@ app.get('/location', (request, response) =>{
       const location = new Location(searchQuery, locationData);
       latitude = location.latitude;
       longitude = location.longitude;
-      console.log(location);
       response.status(200).send(location);
     })
-    .catch(superagentResults => {
-      console.log('nothing');
+    .catch(error => {
+      handleError(error, response);
     })
 
 })
 
 app.get('/weather', (request, response) => {
 
-  const darkskyData = require('./data/darksky.json');
   const URL = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${latitude},${longitude}`
-
   superagent.get(URL)
     .then(superagentResults => {
       let weatherData = superagentResults.body.daily.data;
@@ -45,14 +42,40 @@ app.get('/weather', (request, response) => {
         return new Weather(obj);
 
       })
-      console.log(weatherForecast);
       response.status(200).send(weatherForecast);
     })
-    .catch(superagentResults => {
-      console.log('nothing');
+    .catch(error => {
+      handleError(error, response);
     })
 
 })
+
+app.get('/events', (request, response) => {
+  const URL = `https://www.eventbriteapi.com/v3/events/search?location.longitude=${longitude}&location.latitude=${latitude}&expand=venue&token=${process.env.EVENTBRITE_API_KEY}`;
+
+
+  superagent.get(URL)
+    .then(superagentResults => {
+      let eventData = superagentResults.body.events;
+      const eventSchedule = eventData.map(obj => {
+        return new Event(obj);
+      })
+      console.log(eventSchedule);
+      response.status(200).send(eventSchedule);
+    })
+    .catch(error => {
+      handleError(error, response);
+    })
+})
+
+
+function Event(obj){
+  this.link = obj.url;
+  this.name = obj.name.text;
+  this.event_date = obj.start.local;
+  this.summary = obj.summary;
+}
+
 
 function Location(searchQuery, locationData){
   this.search_query = searchQuery;
@@ -82,12 +105,7 @@ function handleError(error, response){
 
 app.listen(PORT, () => console.log(`listening on ${PORT}`));
 
-//{
-//   "search_query": "seattle",
-//   "formatted_query": "Seattle, WA, USA",
-//   "latitude": "47.606210",
-//   "longitude": "-122.332071"
-// }
+
 
 
 
